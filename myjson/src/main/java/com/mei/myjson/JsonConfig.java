@@ -2,6 +2,7 @@ package com.mei.myjson;
 
 import com.mei.myjson.serializer.JavaBeanSerializer;
 import com.mei.myjson.serializer.ListSerializer;
+import com.mei.myjson.serializer.ObjectSerializer;
 
 import java.util.HashMap;
 import java.util.List;

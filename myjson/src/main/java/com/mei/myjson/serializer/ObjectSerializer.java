@@ -1,4 +1,6 @@
-package com.mei.myjson;
+package com.mei.myjson.serializer;
+
+import com.mei.myjson.JsonConfig;
 
 /**
  * @author mxb

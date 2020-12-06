@@ -1,7 +1,6 @@
 package com.mei.myjson.serializer;
 
 import com.mei.myjson.JsonConfig;
-import com.mei.myjson.ObjectSerializer;
 import com.mei.myjson.utils.Utils;
 
 /**
