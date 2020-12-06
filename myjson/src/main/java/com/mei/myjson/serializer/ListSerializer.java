@@ -14,7 +14,8 @@ import java.util.List;
 public class ListSerializer implements ObjectSerializer {
 
     @Override
-    public void serializer(JsonConfig config, StringBuilder out, Object object) {
+    public void serializer(SerializerContext context, JsonConfig config, StringBuilder out,
+            Object object) {
         // [{"name":"mike"}]
         List<?> list = (List) object;
 
@@ -45,7 +46,7 @@ public class ListSerializer implements ObjectSerializer {
                     out.append("\"");
                 } else { // 对象类型
                     ObjectSerializer serializer = config.getSerializer(clazz);
-                    serializer.serializer(config, out, item);
+                    serializer.serializer(context, config, out, item);
                 }
             }
         }

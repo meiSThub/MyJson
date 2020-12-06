@@ -32,7 +32,7 @@ public class FieldSerializer {
      * @param object JavaBean对象
      * @return 输出属性的json字符串格式，如："name":"tom"
      */
-    public String serializer(JsonConfig config, Object object) {
+    public String serializer(SerializerContext context, JsonConfig config, Object object) {
         // 1. 获取字段的值
         Object filedValue = fieldInfo.get(object);
         if (filedValue == null) {
@@ -51,10 +51,14 @@ public class FieldSerializer {
             sb.append(filedValue);
             sb.append("\"");
         } else {
+            if (context.isSameKeyAndValue(key, filedValue)) {
+                return sb.toString();
+            }
+            context.save(key, filedValue);
             // 如果是对象类型，则根据对象type获取到合适的对象序列化器
             ObjectSerializer serializer = config.getSerializer(fieldInfo.type);
             sb.append(key);
-            serializer.serializer(config, sb, filedValue);
+            serializer.serializer(context, config, sb, filedValue);
         }
 
         return sb.toString();

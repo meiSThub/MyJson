@@ -52,7 +52,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
      * @param object 需要转换成json字符串的javabean对象
      */
     @Override
-    public void serializer(JsonConfig config, StringBuilder out, Object object) {
+    public void serializer(SerializerContext context, JsonConfig config, StringBuilder out,
+            Object object) {
         // {"age":100,"name":"testname","test":1,"list":["1","2"]}
         out.append("{");
         int i = 0;
@@ -64,7 +65,8 @@ public class JavaBeanSerializer implements ObjectSerializer {
 
             // 序列化属性，如： "name":"tom"
             // 如果遇到属性没有值（null）,则返回空字符串：""
-            String serializer = fieldSerializer.serializer(config, object);
+            context = context == null ? new SerializerContext() : context;
+            String serializer = fieldSerializer.serializer(context, config, object);
             out.append(serializer);
 
             // 如果字段序列化后，是空字符串

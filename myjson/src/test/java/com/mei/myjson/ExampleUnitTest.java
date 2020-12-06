@@ -37,4 +37,27 @@ public class ExampleUnitTest {
         // }.getType());
         // System.out.println(object);
     }
+
+    public class B {
+
+        public A a;
+
+    }
+
+    public class A {
+
+        public List<B> b;
+
+        public B b1;
+
+    }
+
+    @Test
+    public void addition_isCorrect1() throws Exception {
+        A a = new A();
+        a.b1 = new B();
+        a.b1.a = a;
+        String s = Json.toJsonString(a);
+        System.out.println(s);
+    }
 }

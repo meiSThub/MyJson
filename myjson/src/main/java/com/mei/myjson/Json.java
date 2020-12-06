@@ -20,7 +20,7 @@ public class Json {
         JsonConfig config = JsonConfig.getGlobalInstance();
         ObjectSerializer serializer = config.getSerializer(object.getClass());
         StringBuilder out = new StringBuilder();
-        serializer.serializer(config, out, object);
+        serializer.serializer(null, config, out, object);
         return out.toString();
     }
 }

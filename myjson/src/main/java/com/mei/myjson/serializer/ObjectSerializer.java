@@ -17,5 +17,5 @@ public interface ObjectSerializer {
      * @param out    输出的Json字符串构建者
      * @param object 需要转换成json字符串的javabean对象
      */
-    void serializer(JsonConfig config, StringBuilder out, Object object);
+    void serializer(SerializerContext context, JsonConfig config, StringBuilder out, Object object);
 }
