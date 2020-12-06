@@ -74,6 +74,10 @@ public class JavaBeanSerializer implements ObjectSerializer {
                 i = 1;
             }
         }
+        // 说明最后一个字符是逗号，则需要手动把逗号删除
+        if (out.lastIndexOf(",") == out.length() - 1) {
+            out.deleteCharAt(out.length() - 1);
+        }
 
         out.append("}");
     }
