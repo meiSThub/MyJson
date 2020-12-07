@@ -1,4 +1,4 @@
-package com.mei.myjson.serializer;
+package com.mei.myjson;
 
 import com.mei.myjson.utils.Log;
 import com.mei.myjson.utils.Utils;
@@ -7,6 +7,7 @@ import com.mei.myjson.utils.Utils;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 /**
  * @author mxb
@@ -38,12 +39,39 @@ public class FieldInfo {
      */
     public Class<?> type;
 
+    /**
+     * 参数化类型
+     */
+    public Type genericType;
+
     public FieldInfo(String name, Field field, Method method) {
+        this(name, field, method, false);
+    }
+
+    /**
+     * 封装字段相关信息
+     *
+     * @param name     字段名
+     * @param field    字段对象
+     * @param method   字段对应的setter/getter方法
+     * @param isSetter 是否是setter函数
+     */
+    public FieldInfo(String name, Field field, Method method, boolean isSetter) {
         this.name = name;
         this.field = field;
         this.method = method;
         // 获取字段的类型
         type = method != null ? method.getReturnType() : field.getType();
+        if (isSetter) {
+            // 当我们采集set函数的时候，实际上已经过滤了 有且只有一个参数的函数
+            if (method != null) {
+                // 所以这里一定是可以拿到参数类型的
+                genericType = method.getGenericParameterTypes()[0];
+            } else {
+                // 如果没有对应的setter方法，则直接取字段的类型
+                genericType = field.getGenericType();
+            }
+        }
     }
 
     public FieldInfo(String name, Field field, Method method, Class<?> type) {

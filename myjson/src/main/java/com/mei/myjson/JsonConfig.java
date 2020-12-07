@@ -1,9 +1,14 @@
 package com.mei.myjson;
 
+import com.mei.myjson.deserializer.JavaBeanDeserializer;
+import com.mei.myjson.deserializer.ListDeserializer;
+import com.mei.myjson.deserializer.ObjectDeserializer;
 import com.mei.myjson.serializer.JavaBeanSerializer;
 import com.mei.myjson.serializer.ListSerializer;
 import com.mei.myjson.serializer.ObjectSerializer;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +23,11 @@ public class JsonConfig {
 
     private static JsonConfig globalInstance = new JsonConfig();
 
-    //
+    // 序列化器集合
     private Map<Class, ObjectSerializer> serializers = new HashMap<>();
+
+    // 反序列化器集合
+    private Map<Type, ObjectDeserializer> deserializers = new HashMap<>();
 
     public static JsonConfig getGlobalInstance() {
         return globalInstance;
@@ -52,4 +60,24 @@ public class JsonConfig {
         return objectSerializer;
     }
 
+    /**
+     * 根据给定的类型，获取反序列化器
+     *
+     * @param type 类型
+     * @return 反序列化器
+     */
+    public ObjectDeserializer getDeserializer(Type type) {
+        ObjectDeserializer objectDeserializer = deserializers.get(type);
+        if (objectDeserializer != null) {
+            return objectDeserializer;
+        }
+
+        if (type instanceof Class) {
+            objectDeserializer = new JavaBeanDeserializer((Class<?>) type);
+        } else if (type instanceof ParameterizedType) {
+            // List<Child>
+            objectDeserializer = new ListDeserializer((ParameterizedType) type);
+        }
+        return objectDeserializer;
+    }
 }

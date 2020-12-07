@@ -1,5 +1,6 @@
 package com.mei.myjson.serializer;
 
+import com.mei.myjson.FieldInfo;
 import com.mei.myjson.JsonConfig;
 import com.mei.myjson.utils.Utils;
 

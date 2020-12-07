@@ -1,12 +1,12 @@
-package com.mei.myjson;
+package com.mei.myjson.test;
 
 /**
  * @author mxb
- * @date 2020/12/5
+ * @date 2020/12/6
  * @desc
  * @desired
  */
-class Parent {
+public class Parent {
 
     String name;
 
@@ -24,5 +24,12 @@ class Parent {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Parent{" +
+                "name='" + name + '\'' +
+                '}';
     }
 }

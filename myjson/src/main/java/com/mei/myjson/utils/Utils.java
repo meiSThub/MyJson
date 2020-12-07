@@ -1,12 +1,15 @@
 package com.mei.myjson.utils;
 
-import com.mei.myjson.serializer.FieldInfo;
+import com.mei.myjson.FieldInfo;
 import com.mei.myjson.serializer.FieldSerializer;
 
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -196,4 +199,100 @@ public class Utils {
         return fieldSerializers;
     }
 
+    /**
+     * 采集可以被反序列化的成员属性
+     * 可以被反序列化的属性需满足：当前类和父类set函数，和public成员属性*
+     *
+     * 即：反序列化 采集公有set函数与公有属性
+     *
+     * @param beanType 将要序列化成的JavaBean类型
+     * @param fieldMap 当前JavaBean对象，所有的成员属性集合
+     * @return 采集到的当前JavaBean类可以被赋值的所有成员属性集合
+     */
+    public static List<FieldInfo> computeSetter(Class<?> beanType, Map<String, Field> fieldMap) {
+        Map<String, FieldInfo> fieldInfoMap = new HashMap<>();
+        // 1. 获取当前类以及其父类的所有公有函数
+        Method[] methods = beanType.getMethods();
+        for (Method method : methods) {
+            // 排除静态方法
+            if (Modifier.isStatic(method.getModifiers())) {
+                continue;
+            }
+            // 排除有返回值的方法
+            if (method.getReturnType() != Void.TYPE) {
+                continue;
+            }
+            // 排除不是只有一个参数的方法
+            if (method.getParameterTypes().length != 1) {
+                continue;
+            }
+
+            String propertyName;
+            String methodName = method.getName();
+            Log.i(TAG, "methodName=" + methodName);
+            // 采集setter方法
+            if (methodName.startsWith("set")) {
+                // 排除void set()方法
+                if (methodName.length() < 4) {
+                    continue;
+                }
+
+                // 拼接字段名
+                char c3 = methodName.charAt(3);
+                propertyName = Character.toLowerCase(c3) + methodName.substring(4);
+                Log.i(TAG, "propertyName=" + propertyName);
+                // 避免字段重复天乩
+                if (!fieldInfoMap.containsKey(propertyName)) {
+                    // 根据字段名，获取字段对象
+                    Field field = fieldMap.get(propertyName);
+                    FieldInfo fieldInfo = new FieldInfo(propertyName, field, method, true);
+                    fieldInfoMap.put(propertyName, fieldInfo);
+                }
+            }
+        }
+
+        // 2. 采集所有的公有字段
+        Field[] fields = beanType.getFields();
+        for (Field field : fields) {
+            int modifiers = field.getModifiers();
+            // 排除静态属性和final属性
+            if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)) {
+                continue;
+            }
+            String propertyName = field.getName();
+            Log.i(TAG, "propertyName=" + propertyName);
+            if (!fieldInfoMap.containsKey(propertyName)) {
+                FieldInfo fieldInfo = new FieldInfo(propertyName, field, null, true);
+                fieldInfoMap.put(propertyName, fieldInfo);
+            }
+        }
+
+        List<FieldInfo> list = new ArrayList<>();
+        list.addAll(fieldInfoMap.values());
+        return list;
+    }
+
+    /**
+     * 根据Type类型，获取真实的参数类型
+     *
+     * @param fieldType 字段类型
+     */
+    public static Type getItemType(Type fieldType) {
+        if (fieldType instanceof Class) {
+            return fieldType;
+        }
+
+        if (fieldType instanceof ParameterizedType) {
+            Type actualTypeArgument = ((ParameterizedType) fieldType).getActualTypeArguments()[0];
+            if (actualTypeArgument instanceof WildcardType) {
+                WildcardType wildcardType = (WildcardType) actualTypeArgument;
+                Type[] upperBounds = wildcardType.getUpperBounds();
+                if (upperBounds.length == 1) {
+                    actualTypeArgument = upperBounds[0];
+                }
+            }
+            return actualTypeArgument;
+        }
+        return Object.class;
+    }
 }
